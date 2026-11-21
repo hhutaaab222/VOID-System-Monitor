@@ -12,17 +12,6 @@
 
 ---
 
-## Preview
-
-<p align="center">
-  <img src="assets/void-banner.png" width="100%">
-</p>
-
-<p align="center">
-  <i>Monitor your system. Know what runs.</i>
-</p>
-
----
 
 ## About
 
