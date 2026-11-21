@@ -8,7 +8,8 @@ A lightweight Linux system monitor written in Python.
 - CPU information
 - CPU usage monitoring
 - RAM usage monitoring
-- DISK usage, total, percent, free place 
+- DISK usage, total, percent, free place
+- Temperatures CPU
 - Neon terminal interface
 
 ## Requirements
