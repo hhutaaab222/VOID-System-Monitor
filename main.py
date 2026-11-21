@@ -70,7 +70,7 @@ def get_cpu_info():
     )
 
 def pause():
-    input(WHITE + f"\npress ENTER to see the load in real time ...\n{WHITE}{DIM}update every 2 seconds" + RESET)
+    input(WHITE + f"\npress ENTER to see the load in real time ...\n" + RESET)
 
 def render_monitor():
     print("\033[2J\033[H", end="")
