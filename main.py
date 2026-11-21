@@ -6,6 +6,7 @@ from psutil import virtual_memory
 from psutil import cpu_count
 from psutil import cpu_freq
 from psutil import disk_usage
+from psutil import sensors_temperatures
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -46,6 +47,17 @@ def get_system_info():
     f"{GREEN}{BOLD}hostname{RESET}       : {hostname}"
     )
 
+def get_cpu_temp():
+    temps = sensors_temperatures()
+    cpu_temp = temps.get("coretemp", [])
+    
+    for i in cpu_temp:
+        if i.label == "Package id 0":
+            return i.current
+
+    return None
+
+
 def get_cpu_info():
     fiz_yadro = cpu_count(logical=False)
     log_potoki = cpu_count(logical=True)
@@ -59,6 +71,25 @@ def get_cpu_info():
 
 def pause():
     input(WHITE + f"\npress ENTER to see the load in real time ...\n{WHITE}{DIM}update every 2 seconds" + RESET)
+
+def render_monitor():
+    print("\033[2J\033[H", end="")
+    cpu1 = get_cpu()
+    print(f"{BOLD}CPU USAGE: {RESET}{GREEN}{cpu1}%{RESET}")
+    make_bar(cpu1)
+    ram1 = get_ram()
+    print(f"\n{BOLD}RAM USAGE: {RESET}{GREEN}{ram1}%{RESET}")
+    make_bar(ram1)
+    total, used, free, percent = get_disk_info()
+    print(f"\n{BOLD}DISK USAGE: {RESET}{GREEN}{used} GB / {total} GB — {percent} %")
+    make_bar(percent)
+    cpu_temp = get_cpu_temp()
+    if cpu_temp is not None:
+        print(f"\n{BOLD}CPU TEMPERATURE: {RESET}{GREEN}{cpu_temp}°C")
+    else:
+        print(f"\n{BOLD}CPU TEMPERATURE: {RESET}N/A")
+    
+
 
 def show_header():
     clear_screen()
@@ -83,6 +114,7 @@ show_header()
 get_system_info()
 get_cpu_info()
 total, used, free, percent = get_disk_info()
+
 
 print(f"{BOLD}{GREEN}DISK INFORMATION:{RESET}\n"
     f"{BOLD}{GREEN}total    :{RESET}{total} GB\n"
@@ -116,15 +148,6 @@ make_bar(ram)
 pause()
 
 while True:
-    clear_screen()
-    cpu1 = get_cpu()
-    print(f"{BOLD}CPU USAGE: {RESET}{GREEN}{cpu1}%{RESET}")
-    make_bar(cpu1)
-    ram1 = get_ram()
-    print(f"\n{BOLD}RAM USAGE: {RESET}{GREEN}{ram1}%{RESET}")
-    make_bar(ram1)
-    total, used, free, percent = get_disk_info()
-    print(f"\n{BOLD}DISK USAGE:\n{RESET}{used} GB / {total} GB — {percent} %")
-    make_bar(percent)
-    time.sleep(2)
+    render_monitor()
+    time.sleep(0.05)
     
