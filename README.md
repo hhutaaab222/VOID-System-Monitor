@@ -10,8 +10,8 @@
   <b>A lightweight terminal-based system monitor written in Python.</b>
 </p>
 
-## Picture
-<img width="1065" height="919" alt="image" src="https://github.com/user-attachments/assets/19748831-0c25-4190-a436-1afb0f2cf364" />
+<img width="1077" height="787" alt="image" src="https://github.com/user-attachments/assets/3f3108c5-cad8-4158-93e3-baea0a40121e" />
+
 
 
 
