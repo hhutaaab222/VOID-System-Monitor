@@ -144,7 +144,7 @@ Hardware sensor availability depends on the operating system, drivers and hardwa
 - [ ] Per-core CPU monitoring
 - [ ] GPU monitoring
 - [ ] Network monitoring
-- [ ] Process monitoring
+- [-] Process monitoring
 - [ ] Configurable refresh interval
 - [ ] Multi-disk support
 - [ ] Improved terminal interface
