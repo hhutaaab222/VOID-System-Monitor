@@ -72,7 +72,7 @@ def get_top_processes():
     processes.sort(key=lambda x: x["ram"], reverse=True)
     
     
-    return processes[:5]
+    return processes[:10]
 
 def get_cpu_info():
     fiz_yadro = cpu_count(logical=False)
@@ -90,7 +90,6 @@ def pause():
 
 def render_monitor():
     print("\033[2J\033[H", end="")
-    
     cpu1 = get_cpu()
     print(f"{BOLD}CPU USAGE: {RESET}{GREEN}{cpu1}%{RESET}")
     make_bar(cpu1)
@@ -109,8 +108,9 @@ def render_monitor():
     else:
         print(f"\n{BOLD}CPU TEMPERATURE: {RESET}N/A")
     
-    print(f"\n{GREEN}{BOLD}TOP PROCESSES:{RESET}")
-
+    print(f"\n{GREEN}{BOLD}------------------------------------------------")
+    print(  f"{BOLD}             MONITORING PROCESSES               " + RESET)
+    print(f"\n{BOLD}TOP PROCESSES:{RESET}")
     for proc in get_top_processes():
         print(
             f"{proc['name']:<20} "
