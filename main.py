@@ -86,7 +86,7 @@ def get_cpu_info():
     )
 
 def pause():
-    input(WHITE + f"\npress ENTER to see the load in real time ...\n" + RESET)
+    input(BOLD + GREEN + f"\npress ENTER to see the load in real time ...\n" + RESET)
 
 def render_monitor():
     print("\033[2J\033[H", end="")
@@ -136,7 +136,7 @@ show_header()
 get_system_info()
 get_cpu_info()
 total, used, free, percent = get_disk_info()
-get_top_processes()
+
 
 print(f"\n{BOLD}{GREEN}DISK INFORMATION:{RESET}\n"
     f"{BOLD}{GREEN}total    :{RESET}{total} GB\n"
@@ -148,27 +148,19 @@ print(f"\n{BOLD}{GREEN}DISK INFORMATION:{RESET}\n"
 def get_cpu():
     cpu = cpu_percent(interval=1)
     return cpu
-cpu_resualt = get_cpu()
-print(f"\n{BOLD}CPU USAGE: {RESET}{GREEN}{cpu_resualt}%{RESET}")
+
     
 def make_bar(cpu1):
     filled = int(30 * cpu1 / 100)
     empty = 30 - filled
     print(GREEN + "█" * filled + RESET + "░" * empty)
 
-cpu = get_cpu()
-make_bar(cpu)
 
 def get_ram():
     ram = virtual_memory()
     return ram.percent
-ram_resualt = get_ram()
-print(WHITE + BOLD + "----------------------------------" + RESET)
-print(f"{BOLD}RAM USAGE: {RESET}{GREEN}{ram_resualt}%{RESET}")
-ram = get_ram()
-make_bar(ram)
-pause()
 
+pause()
 while True:
     render_monitor()
     time.sleep(0.05)
