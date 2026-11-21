@@ -18,7 +18,7 @@ A lightweight Linux system monitor written in Python.
 ## Installation
 
 ```bash
-git clone https://github.com/ТВОЙ_НИК/VOID-System-Monitor.git
+git clone https://github.com/hhutaaab222/VOID-System-Monitor.git
 cd VOID-System-Monitor
 pip install psutil
 python3 main.py
