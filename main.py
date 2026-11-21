@@ -5,6 +5,7 @@ from psutil import cpu_percent
 from psutil import virtual_memory
 from psutil import cpu_count
 from psutil import cpu_freq
+from psutil import disk_usage
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -18,6 +19,20 @@ def clear_screen():
         os.system("cls")
     elif os_name == "Linux":
         os.system("clear")
+
+def get_disk_info():
+    disk_plaform = platform.system()
+    
+    if disk_plaform == "Windows":
+        disk = disk_usage("C:\\")
+    elif disk_plaform == "Linux":
+        disk = disk_usage("/")
+
+    disk_total = round(disk.total / (1024 ** 3), 2)
+    disk_used = round(disk.used / (1024 ** 3), 2)
+    disk_free = round(disk.free / (1024 ** 3), 2)
+    disk_percent = disk.percent
+    return disk_total, disk_used, disk_free, disk_percent
 
 def get_system_info():
     oc = platform.system()
@@ -42,7 +57,8 @@ def get_cpu_info():
     f"{BOLD}{GREEN}CPU frequency{RESET}     :{freq_cpu}MHz\n"
     )
 
-
+def pause():
+    input(WHITE + f"\npress ENTER to see the load in real time ...\n{WHITE}{DIM}update every 2 seconds" + RESET)
 
 def show_header():
     clear_screen()
@@ -66,7 +82,14 @@ def show_header():
 show_header()
 get_system_info()
 get_cpu_info()
+total, used, free, percent = get_disk_info()
 
+print(f"{BOLD}{GREEN}DISK INFORMATION:{RESET}\n"
+    f"{BOLD}{GREEN}total    :{RESET}{total} GB\n"
+    f"{BOLD}{GREEN}used     :{RESET}{used} GB\n"
+    f"{BOLD}{GREEN}free     :{RESET}{free} GB\n"
+    f"{BOLD}{GREEN}percent  :{RESET}{percent}%"
+)
 
 def get_cpu():
     cpu = cpu_percent(interval=1)
@@ -90,7 +113,8 @@ print(WHITE + BOLD + "----------------------------------" + RESET)
 print(f"{BOLD}RAM USAGE: {RESET}{GREEN}{ram_resualt}%{RESET}")
 ram = get_ram()
 make_bar(ram)
-time.sleep(10)
+pause()
+
 while True:
     clear_screen()
     cpu1 = get_cpu()
@@ -99,5 +123,8 @@ while True:
     ram1 = get_ram()
     print(f"\n{BOLD}RAM USAGE: {RESET}{GREEN}{ram1}%{RESET}")
     make_bar(ram1)
-    time.sleep(1.5)
+    total, used, free, percent = get_disk_info()
+    print(f"\n{BOLD}DISK USAGE:\n{RESET}{used} GB / {total} GB — {percent} %")
+    make_bar(percent)
+    time.sleep(2)
     
