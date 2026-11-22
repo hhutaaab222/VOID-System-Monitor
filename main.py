@@ -15,6 +15,11 @@ WHITE = "\033[37m"
 RESET = "\033[0m"
 BOLD = "\033[1m"
 DIM = "\033[2m"
+YELLOW = "\033[33m"
+ORANGE = "\033[38;5;208m"
+
+
+
 def clear_screen():
     os_name = platform.system()
     if os_name == "Windows":
@@ -58,6 +63,16 @@ def get_cpu_temp():
 
     return None
 
+def get_temp_color(temp):
+    if temp < 60:
+        return GREEN, "NORMAL"
+    elif temp < 75:
+        return YELLOW, "WARM"
+    elif temp <= 84:
+        return ORANGE, "HIGH"
+    else:
+        return RED, "CRITICAL"
+
 def get_top_processes():
     processes = []
 
@@ -72,7 +87,7 @@ def get_top_processes():
     processes.sort(key=lambda x: x["ram"], reverse=True)
     
     
-    return processes[:10]
+    return processes[:5]
 
 def get_cpu_info():
     fiz_yadro = cpu_count(logical=False)
@@ -104,7 +119,8 @@ def render_monitor():
     
     cpu_temp = get_cpu_temp()
     if cpu_temp is not None:
-        print(f"\n{BOLD}CPU TEMPERATURE: {RESET}{GREEN}{cpu_temp}°C")
+        color, status = get_temp_color(cpu_temp)
+        print(f"\n{BOLD}CPU TEMPERATURE: {RESET}{GREEN}{cpu_temp}°C{RESET} [{color}{status}{RESET}]")
     else:
         print(f"\n{BOLD}CPU TEMPERATURE: {RESET}N/A")
     
