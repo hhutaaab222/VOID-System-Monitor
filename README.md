@@ -142,7 +142,7 @@ Hardware sensor availability depends on the operating system, drivers and hardwa
 ## Roadmap
 
 - [x] CPU temperature color indicators
-- [ ] Thermal warning system
+- [X] Thermal warning system
 - [ ] Per-core CPU monitoring
 - [ ] GPU monitoring
 - [ ] Network monitoring
