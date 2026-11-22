@@ -63,6 +63,16 @@ def get_cpu_temp():
 
     return None
 
+def get_temp_warning(temp):
+    if temp <= 75:
+        return None
+    elif temp <=84:
+        return ORANGE, "WARNING: HIGH TEMPERATURE"
+    else:
+        return RED, "CRITICAL: CPU OVERHEATING" 
+
+
+
 def get_temp_color(temp):
     if temp < 60:
         return GREEN, "NORMAL"
@@ -121,6 +131,13 @@ def render_monitor():
     if cpu_temp is not None:
         color, status = get_temp_color(cpu_temp)
         print(f"\n{BOLD}CPU TEMPERATURE: {RESET}{GREEN}{cpu_temp}°C{RESET} [{color}{status}{RESET}]")
+    
+        warning = get_temp_warning(cpu_temp)
+
+        if warning is not None:
+            color1, status1 = warning
+            print(f"{color1}{status1}{RESET}")
+    
     else:
         print(f"\n{BOLD}CPU TEMPERATURE: {RESET}N/A")
     
