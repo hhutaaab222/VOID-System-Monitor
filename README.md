@@ -10,11 +10,6 @@
   <b>A lightweight terminal-based system monitor written in Python.</b>
 </p>
 
-<img width="1077" height="787" alt="image" src="https://github.com/user-attachments/assets/3f3108c5-cad8-4158-93e3-baea0a40121e" />
-
-
-
-
 ## About
 
 **VOID** is a lightweight terminal-based system monitoring utility built with Python.
