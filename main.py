@@ -1,6 +1,7 @@
 import os
 import time
 import platform
+import subprocess
 from psutil import cpu_percent
 from psutil import virtual_memory
 from psutil import cpu_count
@@ -8,6 +9,7 @@ from psutil import cpu_freq
 from psutil import disk_usage
 from psutil import sensors_temperatures
 from psutil import process_iter
+from psutil import net_io_counters
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -31,7 +33,7 @@ def get_disk_info():
     disk_plaform = platform.system()
     
     if disk_plaform == "Windows":
-        disk = disk_usage("C:\\")
+        disk = disk_usage("\\")
     elif disk_plaform == "Linux":
         disk = disk_usage("/")
 
@@ -53,15 +55,52 @@ def get_system_info():
     f"{GREEN}{BOLD}hostname{RESET}       : {hostname}"
     )
 
-def get_cpu_temp():
-    temps = sensors_temperatures()
-    cpu_temp = temps.get("coretemp", [])
-    
-    for i in cpu_temp:
-        if i.label == "Package id 0":
-            return i.current
+def get_network_info():
+    network = net_io_counters()
+    sent = round(network.bytes_sent / (1024 ** 2), 2)
+    received = round(network.bytes_recv / (1024 ** 2), 2)
+    return sent, received
 
-    return None
+def get_upload_speed():
+    sent, received = get_network_info()
+    old_value = sent
+    time_speed1 = time.time()
+    time.sleep(1)
+    sent, received = get_network_info()
+    new_value = sent
+    time_speed2 = time.time()
+    difference = new_value - old_value
+    past_time = time_speed2 - time_speed1
+    division_of_time = difference / past_time
+    upload_speed = division_of_time / 1024 ** 2
+    return upload_speed
+
+def get_download_speed():
+    sent, received = get_network_info()
+    old_value = received
+    time_speed1 = time.time()
+    time.sleep(1)
+    sent, received = get_network_info()
+    new_value = received
+    time_speed2 = time.time()
+    difference = new_value - old_value
+    past_time = time_speed2 - time_speed1
+    division_of_time = difference / past_time
+    download_speed = division_of_time / 1024 ** 2
+    return download_speed
+
+def get_cpu_temp():
+    try:
+        temps = sensors_temperatures()
+        cpu_temp = temps.get("coretemp", [])
+        
+        for i in cpu_temp:
+            if i.label == "Package id 0":
+                return i.current
+
+        return None
+    except Exception:
+        return None
 
 def get_temp_warning(temp):
     if temp <= 75:
@@ -110,6 +149,27 @@ def get_cpu_info():
     f"{BOLD}{GREEN}CPU frequency{RESET}     :{freq_cpu}MHz\n"
     )
 
+def get_cpu_cores():
+    cpu_workload = cpu_percent(interval=None, percpu=True)
+    return cpu_workload
+
+def get_gpu_info():
+    result = subprocess.run(
+        [
+            "nvidia-smi",
+            "--query-gpu=utilization.gpu,temperature.gpu,memory.used,memory.total",
+            "--format=csv,noheader,nounits"
+        ],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        print("GPU ERROR:", result.stderr)
+        return None
+    return result.stdout.strip()
+    print(get_gpu_info())
+
 def pause():
     input(BOLD + GREEN + f"\npress ENTER to see the load in real time ...\n" + RESET)
 
@@ -141,8 +201,6 @@ def render_monitor():
     else:
         print(f"\n{BOLD}CPU TEMPERATURE: {RESET}N/A")
     
-    print(f"\n{GREEN}{BOLD}------------------------------------------------")
-    print(  f"{BOLD}             MONITORING PROCESSES               " + RESET)
     print(f"\n{BOLD}TOP PROCESSES:{RESET}")
     for proc in get_top_processes():
         print(
@@ -150,18 +208,42 @@ def render_monitor():
             f"PID:{GREEN}{proc['pid']:<8}{RESET} "
             f"RAM:{GREEN}{round(proc['ram'] / 1024**2, 2)} MB{RESET}"
         )
+
+    gpu = get_gpu_info()
+    gpu_data = gpu.split(",")
+    gpu_usage, gpu_temp, vram_used, vram_total = map(int, gpu_data)
+
+    print(f"\n{BOLD}GPU INFORMATION:{RESET}\n"
+        f"{BOLD}GPU USAGE       : {RESET}{GREEN}{gpu_usage}{RESET}\n"
+        f"{BOLD}GPU TEMPERATURE : {RESET}{GREEN}{gpu_temp}{RESET}\n"
+        f"{BOLD}VRAM            : {RESET}{GREEN}{vram_used} / {vram_total}{RESET}"
+        )
+
+    print()
+    cpuworkloadsave = get_cpu_cores()
+    print(BOLD + f"CPU CORES:{RESET}")
+    for index, value in enumerate(cpuworkloadsave, start=1):
+        print(f"CPU CORE {index} - {RESET}{GREEN}{value:.1f}%{RESET}")
+        make_bar(value)
+
+
+    download = get_download_speed()
+    upload = get_upload_speed()
+    print(BOLD + "\n       NETWORK MONITOR:" + RESET)
+    print(BOLD + f"DOWNLOAD SPEED    :{RESET}{GREEN}{download:.2f} MB/s{RESET}\n"
+    f"{BOLD}UPLOAD SPEED      :{RESET}{GREEN}{upload:.2f} MB/s{RESET}"
+    )
     
-
-
 def show_header():
     clear_screen()
     art0 = r"""
- ▄   ▄ ▄▄▄ ▄ ▄▄▄  ▄▄▄▄   ▄▄▄ ▄   ▄  ▄▄▄ ▄▄▄▄▄ ▄▄▄▄ ▄   ▄   ▄   ▄  ▄▄▄  ▄   ▄ ▄ ▄▄▄▄▄  ▄▄▄  ▄▄▄▄  
- █   █ █ █ █ █  █ █     █     ▀▄▀  █      █   █    ██ ██   ██ ██ █   █ ██  █ █   █   █   █ █   █ 
-  █ █  █ █ █ █  █ █▀▀    ▀▀▀▄  █    ▀▀▀▄  █   █▀▀  █ █ █   █ █ █ █   █ █ █ █ █   █   █   █ ▄▄▄▄▀ 
-   ▀   ▀▀▀ ▀ ▀▀▀  ▀▀▀▀  ▀▀▀▀   ▀   ▀▀▀▀   ▀   ▀▀▀▀ ▀   ▀   ▀   ▀  ▀▀▀  ▀  ██ ▀   ▀    ▀▀▀  ▀   ▀ 
-
-                                            by Void Monitor
+██╗   ██╗ ██████╗ ██╗██████╗ ███████╗    ███████╗██╗   ██╗███████╗████████╗███████╗███╗   ███╗
+██║   ██║██╔═══██╗██║██╔══██╗██╔════╝    ██╔════╝╚██╗ ██╔╝██╔════╝╚══██╔══╝██╔════╝████╗ ████║
+██║   ██║██║   ██║██║██║  ██║█████╗      ███████╗ ╚████╔╝ ███████╗   ██║   █████╗  ██╔████╔██║
+╚██╗ ██╔╝██║   ██║██║██║  ██║██╔══╝      ╚════██║  ╚██╔╝  ╚════██║   ██║   ██╔══╝  ██║╚██╔╝██║
+ ╚████╔╝ ╚██████╔╝██║██████╔╝███████╗    ███████║   ██║   ███████║   ██║   ███████╗██║ ╚═╝ ██║
+  ╚═══╝   ╚═════╝ ╚═╝╚═════╝ ╚══════╝    ╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝
+                                         [ M O N I T O R ]
     """
     print(GREEN + art0 + RESET)
     time.sleep(1)
@@ -169,17 +251,26 @@ show_header()
 get_system_info()
 get_cpu_info()
 total, used, free, percent = get_disk_info()
+gpu = get_gpu_info()
+gpu_data = gpu.split(",")
+gpu_usage, gpu_temp, vram_used, vram_total = gpu_data
+gpu_usage, gpu_temp, vram_used, vram_total = map(int, gpu_data)
 
+print(f"{BOLD}{GREEN}GPU INFORMATION:{RESET}\n"
+    f"{BOLD}{GREEN}GPU USAGE       : {RESET}{gpu_usage}\n"
+    f"{BOLD}{GREEN}GPU TEMPERATURE : {RESET}{gpu_temp}\n"
+    f"{BOLD}{GREEN}VRAM            : {RESET}{vram_used} / {vram_total}"
+    )
 
 print(f"\n{BOLD}{GREEN}DISK INFORMATION:{RESET}\n"
     f"{BOLD}{GREEN}total    :{RESET}{total} GB\n"
     f"{BOLD}{GREEN}used     :{RESET}{used} GB\n"
     f"{BOLD}{GREEN}free     :{RESET}{free} GB\n"
-    f"{BOLD}{GREEN}percent  :{RESET}{percent}%"
+    f"{BOLD}{GREEN}percent  :{RESET}{percent}%\n"
 )
 
 def get_cpu():
-    cpu = cpu_percent(interval=1)
+    cpu = cpu_percent(interval=None)
     return cpu
 
     
@@ -192,9 +283,11 @@ def make_bar(cpu1):
 def get_ram():
     ram = virtual_memory()
     return ram.percent
+cpu_percent(interval=None)
+cpu_percent(interval=None, percpu=True)     
 
 pause()
 while True:
     render_monitor()
-    time.sleep(0.05)
+    time.sleep(1)
     
