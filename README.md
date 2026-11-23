@@ -143,7 +143,7 @@ Hardware sensor availability depends on the operating system, drivers and hardwa
 
 - [x] CPU temperature color indicators
 - [X] Thermal warning system
-- [ ] Per-core CPU monitoring
+- [X] Per-core CPU monitoring
 - [ ] GPU monitoring
 - [ ] Network monitoring
 - [x] Process monitoring
