@@ -1,0 +1,9 @@
+{
+    "refresh_interval": 1.0,
+    "process_count": 5,
+    "bar_width": 20,
+    "show_gpu": true,
+    "show_temperature": true,
+    "show_per_core": true,
+    "show_processes": true
+}
